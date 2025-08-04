@@ -1,9 +1,8 @@
 from django.urls import path
-from django.contrib.auth.views import LoginView, LogoutView
-from . import views  # 👈 this satisfies "views.register"
+from . import views  # ✅ for function-based views
+from .views import LibraryDetailView  # ✅ for class-based views
 
 urlpatterns = [
-    path('register/', views.register_view, name='register'),  # views.register = OK
-    path('login/', LoginView.as_view(template_name='relationship_app/login.html'), name='login'),  # OK
-    path('logout/', LogoutView.as_view(template_name='relationship_app/logout.html'), name='logout'),  # OK
+    path('books/', views.list_books, name='list_books'),  # Function-based view
+    path('library/<int:pk>/', LibraryDetailView.as_view(), name='library_detail'),  # Class-based view
 ]
