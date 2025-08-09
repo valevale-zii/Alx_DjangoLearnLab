@@ -1,26 +1,29 @@
+# bookshelf/views.py
+
 from django.shortcuts import render
-
-from django.shortcuts import render, redirect
-from django.contrib.auth.decorators import permission_required
 from .models import Book
+from .forms import BookSearchForm
 
-@permission_required('bookshelf.can_view', raise_exception=True)
-def book_list(request):
-    books = Book.objects.all()
-    return render(request, 'bookshelf/book_list.html', {'books': books})
+def book_search(request):
+    """
+    View to handle book search securely.
 
-@permission_required('bookshelf.can_create', raise_exception=True)
-def book_create(request):
-    # Form logic to create book
-    pass
+    - Uses BookSearchForm to validate and clean user input.
+    - Uses Django ORM filter with parameterization to prevent SQL injection.
+    - Renders 'book_list.html' with filtered books or empty list if no valid query.
+    """
+    form = BookSearchForm(request.GET or None)  # Bind form with GET data
+    books = Book.objects.none()  # Empty queryset as default
 
-@permission_required('bookshelf.can_edit', raise_exception=True)
-def book_edit(request, book_id):
-    # Form logic to edit book
-    pass
+    if form.is_valid():
+        # Cleaned data is safe to use
+        query = form.cleaned_data['query']
 
-@permission_required('bookshelf.can_delete', raise_exception=True)
-def book_delete(request, book_id):
-    # Logic to delete book
-    pass
+        # Filter books by title containing the query, case-insensitive
+        # This uses parameterized queries internally to prevent SQL injection
+        books = Book.objects.filter(title__icontains=query)
 
+    return render(request, 'bookshelf/book_list.html', {
+        'form': form,
+        'books': books,
+    })
