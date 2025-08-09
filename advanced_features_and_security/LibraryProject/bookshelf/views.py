@@ -1,29 +1,18 @@
-# bookshelf/views.py
-
 from django.shortcuts import render
 from .models import Book
-from .forms import BookSearchForm
+from .forms import BookSearchForm, ExampleForm  # Import ExampleForm here
 
-def book_search(request):
+def example_form_view(request):
     """
-    View to handle book search securely.
-
-    - Uses BookSearchForm to validate and clean user input.
-    - Uses Django ORM filter with parameterization to prevent SQL injection.
-    - Renders 'book_list.html' with filtered books or empty list if no valid query.
+    View to display and process ExampleForm securely.
     """
-    form = BookSearchForm(request.GET or None)  # Bind form with GET data
-    books = Book.objects.none()  # Empty queryset as default
-
-    if form.is_valid():
-        # Cleaned data is safe to use
-        query = form.cleaned_data['query']
-
-        # Filter books by title containing the query, case-insensitive
-        # This uses parameterized queries internally to prevent SQL injection
-        books = Book.objects.filter(title__icontains=query)
-
-    return render(request, 'bookshelf/book_list.html', {
-        'form': form,
-        'books': books,
-    })
+    if request.method == 'POST':
+        form = ExampleForm(request.POST)
+        if form.is_valid():
+            # Process form.cleaned_data here
+            example_value = form.cleaned_data['example_field']
+            return render(request, 'bookshelf/form_example.html', {'form': form, 'message': f'You entered: {example_value}'})
+    else:
+        form = ExampleForm()
+    
+    return render(request, 'bookshelf/form_example.html', {'form': form})
