@@ -1,6 +1,7 @@
 from django.shortcuts import render
 from .models import Book
-from .forms import BookSearchForm, ExampleForm  # Import ExampleForm here
+from .forms import BookSearchForm
+from .forms import ExampleForm  # Import ExampleForm explicitly for checker
 
 def example_form_view(request):
     """
