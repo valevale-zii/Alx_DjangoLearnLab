@@ -9,3 +9,6 @@ SECURE_HSTS_PRELOAD = True
 # Secure cookies
 SESSION_COOKIE_SECURE = True
 CSRF_COOKIE_SECURE = True
+
+# Tell Django to trust the X-Forwarded-Proto header for HTTPS detection
+SECURE_PROXY_SSL_HEADER = ('HTTP_X_FORWARDED_PROTO', 'https')
