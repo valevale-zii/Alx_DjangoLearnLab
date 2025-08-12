@@ -1,4 +1,11 @@
-# BASE_DIR exists by default in new projects
-STATIC_URL = '/static/'
-# If you want a folder for project-level static files:
-STATICFILES_DIRS = [BASE_DIR / "static"]   # requires Python3.9 Path style or use os.path.join
+# Force HTTPS
+SECURE_SSL_REDIRECT = True  
+
+# HTTP Strict Transport Security (HSTS)
+SECURE_HSTS_SECONDS = 31536000  # 1 year
+SECURE_HSTS_INCLUDE_SUBDOMAINS = True
+SECURE_HSTS_PRELOAD = True
+
+# Secure cookies
+SESSION_COOKIE_SECURE = True
+CSRF_COOKIE_SECURE = True
