@@ -11,7 +11,6 @@ DEBUG = True
 
 ALLOWED_HOSTS = []
 
-
 # Application definition
 INSTALLED_APPS = [
     'django.contrib.admin',
@@ -23,6 +22,7 @@ INSTALLED_APPS = [
 
     # Third-party
     'rest_framework',
+    'rest_framework.authtoken',  # ✅ Token authentication enabled
 
     # Local apps
     'api',
@@ -58,7 +58,6 @@ TEMPLATES = [
 
 WSGI_APPLICATION = 'api_project.wsgi.application'
 
-
 # Database
 DATABASES = {
     'default': {
@@ -66,7 +65,6 @@ DATABASES = {
         'NAME': BASE_DIR / 'db.sqlite3',
     }
 }
-
 
 # Password validation
 AUTH_PASSWORD_VALIDATORS = [
@@ -84,24 +82,23 @@ AUTH_PASSWORD_VALIDATORS = [
     },
 ]
 
-
 # Internationalization
 LANGUAGE_CODE = 'en-us'
 TIME_ZONE = 'UTC'
 USE_I18N = True
 USE_TZ = True
 
-
-# Static files (CSS, JavaScript, Images)
+# Static files
 STATIC_URL = 'static/'
 
-# Default primary key field type
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
-# Django REST Framework default settings
+# ✅ Django REST Framework settings
 REST_FRAMEWORK = {
-    'DEFAULT_RENDERER_CLASSES': [
-        'rest_framework.renderers.JSONRenderer',
-        'rest_framework.renderers.BrowsableAPIRenderer',
+    'DEFAULT_AUTHENTICATION_CLASSES': [
+        'rest_framework.authentication.TokenAuthentication',
+    ],
+    'DEFAULT_PERMISSION_CLASSES': [
+        'rest_framework.permissions.IsAuthenticated',
     ]
 }
