@@ -1,37 +1,26 @@
-from rest_framework import generics, permissions
+from django.views.generic import ListView, DetailView, UpdateView, DeleteView
+from django.urls import reverse_lazy
 from .models import Book
-from .serializers import BookSerializer
 
-# List all books (anyone can access)
-class ListView(generics.ListAPIView):
-    queryset = Book.objects.all()
-    serializer_class = BookSerializer
-    permission_classes = [permissions.AllowAny]
+# List all books
+class BookListView(ListView):
+    model = Book
+    template_name = "book_list.html"
 
+# Show details of a single book
+class BookDetailView(DetailView):
+    model = Book
+    template_name = "book_detail.html"
 
-# Retrieve a single book by ID (anyone can access)
-class DetailView(generics.RetrieveAPIView):
-    queryset = Book.objects.all()
-    serializer_class = BookSerializer
-    permission_classes = [permissions.AllowAny]
+# Update a book
+class BookUpdateView(UpdateView):
+    model = Book
+    fields = ['title', 'author', 'publication_year']  # adjust based on your model fields
+    template_name = "book_form.html"
+    success_url = reverse_lazy('book-list')
 
-
-# Create a new book (authenticated users only)
-class CreateView(generics.CreateAPIView):
-    queryset = Book.objects.all()
-    serializer_class = BookSerializer
-    permission_classes = [permissions.IsAuthenticated]
-
-
-# Update a book (authenticated users only)
-class UpdateView(generics.UpdateAPIView):
-    queryset = Book.objects.all()
-    serializer_class = BookSerializer
-    permission_classes = [permissions.IsAuthenticated]
-
-
-# Delete a book (authenticated users only)
-class DeleteView(generics.DestroyAPIView):
-    queryset = Book.objects.all()
-    serializer_class = BookSerializer
-    permission_classes = [permissions.IsAuthenticated]
+# Delete a book
+class BookDeleteView(DeleteView):
+    model = Book
+    template_name = "book_confirm_delete.html"
+    success_url = reverse_lazy('book-list')
