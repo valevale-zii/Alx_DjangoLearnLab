@@ -1,13 +1,9 @@
 from pathlib import Path
-import os
 
-# Base directory
 BASE_DIR = Path(__file__).resolve().parent.parent
 
-# SECURITY WARNING: keep the secret key used in production secret!
 SECRET_KEY = 'hs1f6=s^z$(3qxxp2jtm^wdr&fk0rg3meugtmqfbmn%&908z='
 
-# SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
 ALLOWED_HOSTS = []
@@ -22,10 +18,10 @@ INSTALLED_APPS = [
     'django.contrib.messages',
     'django.contrib.staticfiles',
 
-    # Third-party
+    # Third-party apps
     'rest_framework',
 
-    # Local apps
+    # Your apps
     'api',
 ]
 
@@ -60,7 +56,7 @@ TEMPLATES = [
 WSGI_APPLICATION = 'advanced_api_project.wsgi.application'
 
 
-# Database — using SQLite by default
+# Database
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.sqlite3',
@@ -88,25 +84,23 @@ AUTH_PASSWORD_VALIDATORS = [
 
 # Internationalization
 LANGUAGE_CODE = 'en-us'
+
 TIME_ZONE = 'UTC'
+
 USE_I18N = True
+
 USE_TZ = True
 
 
-# Static files (CSS, JavaScript, Images)
+# Static files
 STATIC_URL = 'static/'
 
-# Default primary key field type
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
 
 # Django REST Framework configuration
 REST_FRAMEWORK = {
-    'DEFAULT_RENDERER_CLASSES': [
-        'rest_framework.renderers.JSONRenderer',
-        'rest_framework.renderers.BrowsableAPIRenderer',
-    ],
-    'DEFAULT_PARSER_CLASSES': [
-        'rest_framework.parsers.JSONParser',
-    ],
+    'DEFAULT_PERMISSION_CLASSES': [
+        'rest_framework.permissions.IsAuthenticated',
+    ]
 }
