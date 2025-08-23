@@ -1,26 +1,31 @@
-from django.views.generic import ListView, DetailView, UpdateView, DeleteView
+from django.shortcuts import get_object_or_404
+from django.views.generic import ListView, DetailView, CreateView, UpdateView, DeleteView
 from django.urls import reverse_lazy
 from .models import Book
 
-# List all books
 class BookListView(ListView):
     model = Book
-    template_name = "book_list.html"
+    template_name = 'book_list.html'
+    context_object_name = 'books'
 
-# Show details of a single book
 class BookDetailView(DetailView):
     model = Book
-    template_name = "book_detail.html"
+    template_name = 'book_detail.html'
+    context_object_name = 'book'
 
-# Update a book
-class BookUpdateView(UpdateView):
+class BookCreateView(CreateView):
     model = Book
-    fields = ['title', 'author', 'publication_year']  # adjust based on your model fields
-    template_name = "book_form.html"
+    template_name = 'book_form.html'
+    fields = ['title', 'publication_year', 'author']
     success_url = reverse_lazy('book-list')
 
-# Delete a book
+class BookUpdateView(UpdateView):
+    model = Book
+    template_name = 'book_form.html'
+    fields = ['title', 'publication_year', 'author']
+    success_url = reverse_lazy('book-list')
+
 class BookDeleteView(DeleteView):
     model = Book
-    template_name = "book_confirm_delete.html"
+    template_name = 'book_confirm_delete.html'
     success_url = reverse_lazy('book-list')
