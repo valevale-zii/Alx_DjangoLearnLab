@@ -1,11 +1,37 @@
-from rest_framework import viewsets
-from .models import Author, Book
-from .serializers import AuthorSerializer, BookSerializer
+from rest_framework import generics, permissions
+from .models import Book
+from .serializers import BookSerializer
 
-class AuthorViewSet(viewsets.ModelViewSet):
-    queryset = Author.objects.all()
-    serializer_class = AuthorSerializer
-
-class BookViewSet(viewsets.ModelViewSet):
+# List all books (anyone can access)
+class ListView(generics.ListAPIView):
     queryset = Book.objects.all()
     serializer_class = BookSerializer
+    permission_classes = [permissions.AllowAny]
+
+
+# Retrieve a single book by ID (anyone can access)
+class DetailView(generics.RetrieveAPIView):
+    queryset = Book.objects.all()
+    serializer_class = BookSerializer
+    permission_classes = [permissions.AllowAny]
+
+
+# Create a new book (authenticated users only)
+class CreateView(generics.CreateAPIView):
+    queryset = Book.objects.all()
+    serializer_class = BookSerializer
+    permission_classes = [permissions.IsAuthenticated]
+
+
+# Update a book (authenticated users only)
+class UpdateView(generics.UpdateAPIView):
+    queryset = Book.objects.all()
+    serializer_class = BookSerializer
+    permission_classes = [permissions.IsAuthenticated]
+
+
+# Delete a book (authenticated users only)
+class DeleteView(generics.DestroyAPIView):
+    queryset = Book.objects.all()
+    serializer_class = BookSerializer
+    permission_classes = [permissions.IsAuthenticated]
