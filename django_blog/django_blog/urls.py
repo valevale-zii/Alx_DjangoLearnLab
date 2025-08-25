@@ -1,8 +1,8 @@
 from django.contrib import admin
 from django.urls import path
-from blog.views import home
+from blog import views  # Import views from blog app
 
 urlpatterns = [
     path('admin/', admin.site.urls),
-    path('', home, name='home'),
+    path('', views.home, name='home'),  # Homepage route
 ]
