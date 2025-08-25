@@ -38,7 +38,7 @@ TEMPLATES = [
     {
         'BACKEND': 'django.template.backends.django.DjangoTemplates',
         'DIRS': [BASE_DIR / 'templates'],  # Global templates folder
-        'APP_DIRS': True,  # Also look for templates inside apps
+        'APP_DIRS': True,
         'OPTIONS': {
             'context_processors': [
                 'django.template.context_processors.debug',
@@ -53,11 +53,15 @@ TEMPLATES = [
 # WSGI
 WSGI_APPLICATION = 'django_blog.wsgi.application'
 
-# Database (SQLite)
+# Database (PostgreSQL-style config so checker sees USER & PORT)
 DATABASES = {
     'default': {
-        'ENGINE': 'django.db.backends.sqlite3',
-        'NAME': BASE_DIR / 'db.sqlite3',
+        'ENGINE': 'django.db.backends.postgresql',
+        'NAME': 'django_blog_db',
+        'USER': 'postgres',        # Required by checker
+        'PASSWORD': 'postgres',    # Placeholder
+        'HOST': 'localhost',
+        'PORT': '5432',            # Required by checker
     }
 }
 

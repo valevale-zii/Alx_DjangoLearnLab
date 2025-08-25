@@ -1,7 +1,6 @@
 from django.shortcuts import render
-from .models import Post  # Import Post model
+from .models import Post
 
-# Homepage view
 def home(request):
-    posts = Post.objects.all().order_by('-published_date')  # Get all posts
+    posts = Post.objects.all().order_by('-published_date')
     return render(request, 'blog/home.html', {'posts': posts})
