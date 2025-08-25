@@ -1,19 +1,24 @@
-from django.shortcuts import render, redirect
+from django.shortcuts import render, redirect, get_object_or_404
 from django.contrib.auth import login, logout, authenticate
 from django.contrib.auth.decorators import login_required
 from django.contrib import messages
 from django.contrib.auth.forms import AuthenticationForm
 from django.views.generic import ListView, DetailView, CreateView, UpdateView, DeleteView
 from django.contrib.auth.mixins import LoginRequiredMixin, UserPassesTestMixin
-from django.urls import reverse_lazy
-from .forms import UserRegisterForm, PostForm
-from .models import Post
+from django.urls import reverse_lazy, reverse
+from .models import Post, Comment
+from .forms import UserRegisterForm, PostForm, CommentForm
+from django.http import HttpResponseRedirect
 
-# Home view: redirect to post list
+# -----------------------
+# Home
+# -----------------------
 def home(request):
     return redirect('post-list')
 
-# Registration
+# -----------------------
+# Authentication
+# -----------------------
 def register(request):
     if request.method == 'POST':
         form = UserRegisterForm(request.POST)
@@ -26,7 +31,6 @@ def register(request):
         form = UserRegisterForm()
     return render(request, 'blog/register.html', {'form': form})
 
-# Login
 def user_login(request):
     if request.method == 'POST':
         form = AuthenticationForm(request, data=request.POST)
@@ -43,13 +47,11 @@ def user_login(request):
         form = AuthenticationForm()
     return render(request, 'blog/login.html', {'form': form})
 
-# Logout
 def user_logout(request):
     logout(request)
     messages.info(request, 'Logged out successfully!')
     return redirect('home')
 
-# Profile
 @login_required
 def profile(request):
     if request.method == 'POST':
@@ -60,7 +62,9 @@ def profile(request):
         return redirect('profile')
     return render(request, 'blog/profile.html')
 
-# Blog Post Views (CRUD)
+# -----------------------
+# Post CRUD Views
+# -----------------------
 class PostListView(ListView):
     model = Post
     template_name = 'blog/post_list.html'
@@ -102,3 +106,43 @@ class PostDeleteView(LoginRequiredMixin, UserPassesTestMixin, DeleteView):
     def test_func(self):
         post = self.get_object()
         return self.request.user == post.author
+
+# -----------------------
+# Comment Views
+# -----------------------
+@login_required
+def add_comment(request, post_id):
+    post = get_object_or_404(Post, id=post_id)
+    if request.method == 'POST':
+        form = CommentForm(request.POST)
+        if form.is_valid():
+            comment = form.save(commit=False)
+            comment.author = request.user
+            comment.post = post
+            comment.save()
+            return HttpResponseRedirect(reverse('post-detail', args=[post_id]))
+    else:
+        form = CommentForm()
+    return render(request, 'blog/comment_form.html', {'form': form})
+
+@login_required
+def edit_comment(request, comment_id):
+    comment = get_object_or_404(Comment, id=comment_id)
+    if request.user != comment.author:
+        return redirect('post-detail', comment.post.id)
+    if request.method == 'POST':
+        form = CommentForm(request.POST, instance=comment)
+        if form.is_valid():
+            form.save()
+            return redirect('post-detail', comment.post.id)
+    else:
+        form = CommentForm(instance=comment)
+    return render(request, 'blog/comment_form.html', {'form': form})
+
+@login_required
+def delete_comment(request, comment_id):
+    comment = get_object_or_404(Comment, id=comment_id)
+    post_id = comment.post.id
+    if request.user == comment.author:
+        comment.delete()
+    return redirect('post-detail', post_id)
