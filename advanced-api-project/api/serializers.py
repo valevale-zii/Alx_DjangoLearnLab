@@ -1,10 +1,15 @@
 from rest_framework import serializers
-from .models import Book, Author
+from .models import Author, Book
+
+class AuthorSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Author
+        fields = ['id', 'name', 'bio']
+
 
 class BookSerializer(serializers.ModelSerializer):
-    # Use PK for create/update (works nicely in tests)
-    author = serializers.PrimaryKeyRelatedField(queryset=Author.objects.all())
+    author = AuthorSerializer(read_only=True)
 
     class Meta:
         model = Book
-        fields = "__all__"
+        fields = ['id', 'title', 'publication_year', 'author']  # ✅ now all fields exist
