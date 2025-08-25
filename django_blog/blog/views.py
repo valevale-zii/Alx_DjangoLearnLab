@@ -1,80 +1,60 @@
-from django.shortcuts import render, get_object_or_404
-from django.views.generic import (
-    ListView,
-    DetailView,
-    CreateView,
-    UpdateView,
-    DeleteView,
-)
+from django.shortcuts import get_object_or_404
 from django.urls import reverse_lazy
+from django.views.generic import ListView, DetailView, CreateView, UpdateView, DeleteView
+from django.contrib.auth.mixins import LoginRequiredMixin, UserPassesTestMixin
 from .models import Post, Comment
 from .forms import CommentForm
 
-# Home Page - List of Posts
+
 class PostListView(ListView):
     model = Post
-    template_name = 'blog/home.html'  # create blog/templates/blog/home.html
-    context_object_name = 'posts'
-    ordering = ['-date_posted']
+    template_name = "blog/post_list.html"
+    context_object_name = "posts"
+    ordering = ["-created_at"]
 
 
-# Post Details
 class PostDetailView(DetailView):
     model = Post
-    template_name = 'blog/post_detail.html'
+    template_name = "blog/post_detail.html"
+    context_object_name = "post"
 
 
-# Create Post
-class PostCreateView(CreateView):
-    model = Post
-    fields = ['title', 'content']
-    template_name = 'blog/post_form.html'
-    success_url = reverse_lazy('post-list')
+# ---------------- Comment CRUD ----------------
 
-
-# Update Post
-class PostUpdateView(UpdateView):
-    model = Post
-    fields = ['title', 'content']
-    template_name = 'blog/post_form.html'
-    success_url = reverse_lazy('post-list')
-
-
-# Delete Post
-class PostDeleteView(DeleteView):
-    model = Post
-    template_name = 'blog/post_confirm_delete.html'
-    success_url = reverse_lazy('post-list')
-
-
-# ---------------- COMMENTS ---------------- #
-
-class CommentCreateView(CreateView):
+class CommentCreateView(LoginRequiredMixin, CreateView):
     model = Comment
     form_class = CommentForm
-    template_name = 'blog/comment_form.html'
+    template_name = "blog/comment_form.html"
 
     def form_valid(self, form):
-        post = get_object_or_404(Post, pk=self.kwargs['post_id'])
-        form.instance.post = post
+        form.instance.author = self.request.user
+        form.instance.post = get_object_or_404(Post, pk=self.kwargs["post_id"])
         return super().form_valid(form)
 
     def get_success_url(self):
         return self.object.post.get_absolute_url()
 
 
-class CommentUpdateView(UpdateView):
+class CommentUpdateView(LoginRequiredMixin, UserPassesTestMixin, UpdateView):
     model = Comment
     form_class = CommentForm
-    template_name = 'blog/comment_form.html'
+    template_name = "blog/comment_form.html"
+
+    def test_func(self):
+        comment = self.get_object()
+        return self.request.user == comment.author
 
     def get_success_url(self):
         return self.object.post.get_absolute_url()
 
 
-class CommentDeleteView(DeleteView):
+class CommentDeleteView(LoginRequiredMixin, UserPassesTestMixin, DeleteView):
     model = Comment
-    template_name = 'blog/comment_confirm_delete.html'
+    template_name = "blog/comment_confirm_delete.html"
+
+    def test_func(self):
+        comment = self.get_object()
+        return self.request.user == comment.author
 
     def get_success_url(self):
         return self.object.post.get_absolute_url()
