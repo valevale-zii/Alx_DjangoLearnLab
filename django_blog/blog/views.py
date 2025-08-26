@@ -1,70 +1,57 @@
-from django.shortcuts import get_object_or_404
-from django.urls import reverse_lazy
-from django.views.generic import ListView, DetailView, CreateView, UpdateView, DeleteView
+from django.shortcuts import render, get_object_or_404, redirect
 from .models import Post, Comment
-from .forms import CommentForm
+from .forms import PostForm, CommentForm
 
 
-class PostListView(ListView):
-    model = Post
-    template_name = "blog/post_list.html"
-    context_object_name = "posts"
+def post_list(request):
+    query = request.GET.get("q")
+    if query:
+        posts = Post.objects.filter(
+            title__icontains=query
+        ) | Post.objects.filter(
+            content__icontains=query
+        ) | Post.objects.filter(
+            tags__name__icontains=query
+        )
+        posts = posts.distinct()
+    else:
+        posts = Post.objects.all()
+    return render(request, "blog/post_list.html", {"posts": posts})
 
 
-class PostDetailView(DetailView):
-    model = Post
-    template_name = "blog/post_detail.html"
-    context_object_name = "post"
+def post_detail(request, pk):
+    post = get_object_or_404(Post, pk=pk)
+    comments = post.comments.all()
+    if request.method == "POST":
+        form = CommentForm(request.POST)
+        if form.is_valid():
+            comment = form.save(commit=False)
+            comment.post = post
+            comment.save()
+            return redirect("post_detail", pk=post.pk)
+    else:
+        form = CommentForm()
+    return render(request, "blog/post_detail.html", {"post": post, "comments": comments, "form": form})
 
 
-class PostCreateView(CreateView):
-    model = Post
-    template_name = "blog/post_form.html"
-    fields = ["title", "content"]
+def post_create(request):
+    if request.method == "POST":
+        form = PostForm(request.POST)
+        if form.is_valid():
+            form.save()
+            return redirect("post_list")
+    else:
+        form = PostForm()
+    return render(request, "blog/post_form.html", {"form": form})
 
 
-class PostUpdateView(UpdateView):
-    model = Post
-    template_name = "blog/post_form.html"
-    fields = ["title", "content"]
-
-
-class PostDeleteView(DeleteView):
-    model = Post
-    template_name = "blog/post_confirm_delete.html"
-    success_url = reverse_lazy("post_list")
-
-
-# ======================
-# Comment CRUD Views
-# ======================
-
-class CommentCreateView(CreateView):
-    model = Comment
-    form_class = CommentForm
-    template_name = "blog/comment_form.html"
-
-    def form_valid(self, form):
-        post = get_object_or_404(Post, pk=self.kwargs["pk"])
-        form.instance.post = post
-        return super().form_valid(form)
-
-    def get_success_url(self):
-        return self.object.post.get_absolute_url()
-
-
-class CommentUpdateView(UpdateView):
-    model = Comment
-    form_class = CommentForm
-    template_name = "blog/comment_form.html"
-
-    def get_success_url(self):
-        return self.object.post.get_absolute_url()
-
-
-class CommentDeleteView(DeleteView):
-    model = Comment
-    template_name = "blog/comment_confirm_delete.html"
-
-    def get_success_url(self):
-        return self.object.post.get_absolute_url()
+def post_edit(request, pk):
+    post = get_object_or_404(Post, pk=pk)
+    if request.method == "POST":
+        form = PostForm(request.POST, instance=post)
+        if form.is_valid():
+            form.save()
+            return redirect("post_detail", pk=post.pk)
+    else:
+        form = PostForm(instance=post)
+    return render(request, "blog/post_form.html", {"form": form})
