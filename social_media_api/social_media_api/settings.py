@@ -1,6 +1,7 @@
+import os
 from pathlib import Path
 
-# Base directory
+# Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
 
 # SECURITY WARNING: keep the secret key used in production secret!
@@ -10,6 +11,7 @@ SECRET_KEY = 'hs1f6=s^z$(3qxxp2jtm^wdr&fk0rg3meugtmqfbmn%&908z='
 DEBUG = True
 
 ALLOWED_HOSTS = []
+
 
 # Application definition
 INSTALLED_APPS = [
@@ -22,12 +24,11 @@ INSTALLED_APPS = [
 
     # Third-party apps
     'rest_framework',
-    'rest_framework.authtoken',
-    'django_filters',
 
     # Your apps
     'accounts',
     'posts',
+    'notifications',
 ]
 
 MIDDLEWARE = [
@@ -60,7 +61,9 @@ TEMPLATES = [
 
 WSGI_APPLICATION = 'social_media_api.wsgi.application'
 
+
 # Database
+# Use SQLite by default
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.sqlite3',
@@ -68,46 +71,48 @@ DATABASES = {
     }
 }
 
-# Custom user model
-AUTH_USER_MODEL = 'accounts.CustomUser'
 
 # Password validation
 AUTH_PASSWORD_VALIDATORS = [
-    {'NAME': 'django.contrib.auth.password_validation.UserAttributeSimilarityValidator',},
-    {'NAME': 'django.contrib.auth.password_validation.MinimumLengthValidator',},
-    {'NAME': 'django.contrib.auth.password_validation.CommonPasswordValidator',},
-    {'NAME': 'django.contrib.auth.password_validation.NumericPasswordValidator',},
+    {
+        'NAME': 'django.contrib.auth.password_validation.UserAttributeSimilarityValidator',
+    },
+    {
+        'NAME': 'django.contrib.auth.password_validation.MinimumLengthValidator',
+    },
+    {
+        'NAME': 'django.contrib.auth.password_validation.CommonPasswordValidator',
+    },
+    {
+        'NAME': 'django.contrib.auth.password_validation.NumericPasswordValidator',
+    },
 ]
+
 
 # Internationalization
 LANGUAGE_CODE = 'en-us'
-TIME_ZONE = 'Africa/Nairobi'
+
+TIME_ZONE = 'UTC'
+
 USE_I18N = True
+
 USE_TZ = True
 
-# Static files
-STATIC_URL = '/static/'
 
-# Media files
-MEDIA_URL = '/media/'
-MEDIA_ROOT = BASE_DIR / 'media'
+# Static files (CSS, JavaScript, Images)
+STATIC_URL = '/static/'
+STATICFILES_DIRS = [BASE_DIR / "static"]
 
 # Default primary key field type
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
-# Django REST Framework settings
+# DRF settings (optional, can expand later)
 REST_FRAMEWORK = {
     'DEFAULT_AUTHENTICATION_CLASSES': [
-        'rest_framework.authentication.TokenAuthentication',
         'rest_framework.authentication.SessionAuthentication',
+        'rest_framework.authentication.BasicAuthentication',
     ],
     'DEFAULT_PERMISSION_CLASSES': [
         'rest_framework.permissions.IsAuthenticated',
-    ],
-    'DEFAULT_PAGINATION_CLASS': 'rest_framework.pagination.PageNumberPagination',
-    'PAGE_SIZE': 10,
-    'DEFAULT_FILTER_BACKENDS': [
-        'django_filters.rest_framework.DjangoFilterBackend',
-        'rest_framework.filters.SearchFilter',
     ],
 }
